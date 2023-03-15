@@ -1,6 +1,14 @@
 
 
 function Perks({perks,setPerks}) {
+  const checkBoxHandler=(e)=>{
+    const {checked,name}=e.target
+    if(checked){
+      setPerks([...perks,name])
+    }else{
+      setPerks([perks.filter(selectedName=>selectedName!==name)])
+    }
+  }
   return (
     <>
      <div>
@@ -8,7 +16,7 @@ function Perks({perks,setPerks}) {
             <p className="text-gray-500 text-sm">select perks </p>
             <div className="grid grid-cols-2 md:grid-col-4 lg:grid-cols-6 gap-4">
               <label className="border flex gap-2 items-center rounded-2xl p-4 cursor-pointer">
-                <input type="checkbox" />
+                <input type="checkbox" name="wifi" onChange={checkBoxHandler}/>
                 <svg
                   xmlns="http://www.w3.org/2000/svg"
                   fill="none"
@@ -27,7 +35,7 @@ function Perks({perks,setPerks}) {
                 <span>Wifi</span>
               </label>
               <label className="border flex gap-2 items-center rounded-2xl p-4 cursor-pointer">
-                <input type="checkbox" />
+                <input type="checkbox"name="free parking" onChange={checkBoxHandler} />
                 <svg
                   xmlns="http://www.w3.org/2000/svg"
                   fill="none"
@@ -47,7 +55,7 @@ function Perks({perks,setPerks}) {
               </label>
 
               <label className="border flex gap-2 items-center rounded-2xl p-4 cursor-pointer">
-                <input type="checkbox" />
+                <input type="checkbox"name="break fast" onChange={checkBoxHandler} />
                 <svg
                   xmlns="http://www.w3.org/2000/svg"
                   fill="none"
@@ -66,7 +74,7 @@ function Perks({perks,setPerks}) {
                 <span>Break fast</span>
               </label>
               <label className="border flex gap-2 items-center rounded-2xl p-4 cursor-pointer">
-                <input type="checkbox" />
+                <input type="checkbox" name="tv" onChange={checkBoxHandler} />
                 <svg
                   xmlns="http://www.w3.org/2000/svg"
                   fill="none"
@@ -84,7 +92,7 @@ function Perks({perks,setPerks}) {
                 <span>Tv</span>
               </label>
               <label className="border flex gap-2 items-center rounded-2xl p-4 cursor-pointer">
-                <input type='checkbox'/>
+                <input type='checkbox' name="entrance" onChange={checkBoxHandler}/>
                 <svg
                   xmlns="http://www.w3.org/2000/svg"
                   fill="none"

@@ -1,6 +1,7 @@
 const express=require('express')
 const mongoose=require('mongoose')
 const User=require('./models/users.js')
+const Place=require('./models/places.js')
 require('dotenv').config()
 const cors=require('cors') // hleps to connect react to express 
 const app=express()
@@ -10,11 +11,10 @@ const cookieParser=require('cookie-parser')
 const imageDownloader=require('image-downloader')
 const multer=require('multer')
 const filePath=require('path')
-
+const fs=require("fs")
 
 const bcryptSalt=bcrypt.genSaltSync(10) //creating a secret code to hide password
 const jwtSecret='sjfsdjflsdkfjskldfjklsdjfkls' //a random string
-const fs=require("fs")
 app.use(express.json()) //to parse json
 app.use(cookieParser()) //to grab token from cookies which is used to save user info
 app.use('/uploads',express.static(__dirname+'/uploads'))
@@ -51,11 +51,12 @@ app.post('/login',async(req,res)=>{
   if(passwordOK){
     jwt.sign({email:userDoc.email,id:userDoc._id},jwtSecret,{},(err,token)=>{
         if(err) throw err
+        const{name,email,_id}=userDoc
         res.cookie('token',
                     token, { 
                     httpOnly: true, 
                     sameSite: 'none', 
-                    secure: true }).json(userDoc)
+                    secure: true }).json({name,email,_id})
     })
   }else{
       res.json('password is not ok')}
@@ -106,7 +107,34 @@ app.post('/upload',photosMiddleware.array('photos',100),(req,res)=>{
     res.json(uploadedFiles)
    
 })
+app.post('/places',(req,res)=>{
+    const {token}=req.cookies
+    const {
+        title,adress,
+        photosAdded,extraInfo,
+        perks,maxGuests,checkIn,
+        checkOut,description
+    }=req.body
+    jwt.verify(token,jwtSecret,{},async(err,userData)=>{
+        if(err) throw err
+        const placeDoc=await Place.create({
+            owner:userData.id,
+            title,adress,
+            photosAdded,extraInfo,
+            perks,maxGuests,checkIn,
+            checkOut,description
+        })
+        res.json(placeDoc)
+    })
+})
 
+app.get('/places',(req,res)=>{
+    const {token}=req.cookies
+    jwt.verify(token,jwtSecret,{},async(err,userData)=>{
+        const {id}=userData
+       res.json(await Place.find({owner:id}))
+    })
+})
 
 app.listen(4000)
 

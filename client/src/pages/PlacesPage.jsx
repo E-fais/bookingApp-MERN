@@ -1,7 +1,8 @@
-import { Link, useParams } from "react-router-dom";
+import { Link, Navigate, useParams } from "react-router-dom";
 import Perks from "../comoponents/Perks";
 import { useState } from "react";
 import axios from "axios";
+import FetchPalces from "../comoponents/FetchPalces";
 
 export default function PlacesPage() {
   const { action } = useParams();
@@ -16,6 +17,7 @@ export default function PlacesPage() {
   const [checkIn,setCheckIn]=useState('')
   const [checkOut,setCheckOut]=useState('')
   const [maxGuests,setMaxGuests]=useState(1)
+
 
   const uploadBylink=async(e)=>{
     e.preventDefault()
@@ -39,13 +41,25 @@ export default function PlacesPage() {
   setPhotosAdded(prev=>{
     return [...prev,...filenames]
   })  
-  })
+  })}
+
+async function addPlace(e){
+e.preventDefault()
+axios.post('/places',{
+  title,adress,
+  photosAdded,extraInfo,
+  perks,maxGuests,checkIn,
+  checkOut,description
+})
+
+window.location.href='/account/accommodations'
 }
+
   return (
     <>
       <div className="text-center">
         {action !== "new" && (
-          <Link
+         <> <Link
             className="inline-flex text-center gap-1 bg-primary rounded-full text-white py-2 px-6"
             to="/account/accommodations/new"
           >
@@ -65,10 +79,12 @@ export default function PlacesPage() {
             </svg>
             Add new place
           </Link>
+          <FetchPalces/>
+          </>
         )}
       </div>
       {action === "new" && (
-        <form>
+        <form onSubmit={addPlace}>
           <h2 className="text-2xl mt-4">Title</h2>
           <p className="text-gray-500 text-sm">
             Title shuould be short and catchy
@@ -133,7 +149,9 @@ export default function PlacesPage() {
             Give a description about your place
           </p>
           <textarea value={description} onChange={e=>setDescription(e.target.value)} />
+
          <Perks perks={perks} setPerks={setPerks} />
+
           <h2 className="text-2xl mt-4">Extra info</h2>
           <p className="text-gray-500 text-sm">
             House rules , additional informations etc
