@@ -8,6 +8,7 @@ textarea
 {
     @apply w-full border my-2 py-2 px-3 rounded-2xl
 }
+textarea{ height: 140px;}
 button.primary{
     background:#D2042D;
     @apply w-full text-white p-2 rounded-2xl mt-2
