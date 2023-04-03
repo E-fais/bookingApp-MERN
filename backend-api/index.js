@@ -1,6 +1,7 @@
 const express=require('express')
 const mongoose=require('mongoose')
 const User=require('./models/users.js')
+const Booking=require('./models/booking.js')
 const Place=require('./models/places.js')
 require('dotenv').config()
 const cors=require('cors') // hleps to connect react to express 
@@ -113,7 +114,7 @@ app.post('/places',(req,res)=>{
         title,adress,
         photosAdded,extraInfo,
         perks,maxGuests,checkIn,
-        checkOut,description
+        checkOut,description,price
     }=req.body
     jwt.verify(token,jwtSecret,{},async(err,userData)=>{
         if(err) throw err
@@ -122,13 +123,13 @@ app.post('/places',(req,res)=>{
             title,adress,
             photos:photosAdded,extraInfo,
             perks,maxGuests,checkIn,
-            checkOut,description
+            checkOut,description,price
         })
         res.json(placeDoc)
     })
 })
 
-app.get('/places',(req,res)=>{
+app.get('/user-places',(req,res)=>{
     const {token}=req.cookies
     jwt.verify(token,jwtSecret,{},async(err,userData)=>{
         const {id}=userData
@@ -148,7 +149,7 @@ app.put('/places',async(req,res)=>{
         title,adress,
         photosAdded,extraInfo,
         perks,maxGuests,checkIn,
-        checkOut,description
+        checkOut,description,price
     }=req.body
     jwt.verify(token,jwtSecret,{},async(err,userData)=>{
         if(err) throw new err
@@ -158,12 +159,29 @@ app.put('/places',async(req,res)=>{
                 title,adress,
                 photos:photosAdded,extraInfo,
                 perks,maxGuests,checkIn,
-                checkOut,description
+                checkOut,description,price
             })
             await placeDoc.save()
             res.json('ok')
         }
     })
+})
+
+app.get('/places',async (req,res)=>{
+res.json(await Place.find())
+})
+
+app.post('/booking',(req,res)=>{
+    const {
+        place,checkIn,checkOut,numberOfGuests,name,email,mobile,price
+    }=req.body
+    Booking.create({
+        place,checkIn,checkOut,numberOfGuests,name,email,mobile,price
+    }).then((doc)=>{
+        res.json(doc)
+    }).catch(err=>{
+        console.log(err)
+        res.status(500).send('Internal server error')})
 })
 
 app.listen(4000)

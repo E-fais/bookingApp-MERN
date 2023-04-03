@@ -17,6 +17,7 @@ export default function PlacesPage() {
   const [checkIn, setCheckIn] = useState("");
   const [checkOut, setCheckOut] = useState("");
   const [maxGuests, setMaxGuests] = useState(1);
+  const [price, setPrice] = useState();
 
   const uploadBylink = async (e) => {
     e.preventDefault();
@@ -59,6 +60,7 @@ export default function PlacesPage() {
       checkIn,
       checkOut,
       description,
+      price
     });
 
     window.location.href = "/account/accommodations";
@@ -249,7 +251,7 @@ export default function PlacesPage() {
           <p className="text-gray-500 text-sm">
             add check in and out time details.
           </p>
-          <div className="gap-2 grid sm:grid-cols-3">
+          <div className="gap-2 grid grid-cols-2 md:grid-cols-4">
             <div>
               <h3 className="mt-2 -mb-1">Check in time</h3>
               <input
@@ -266,6 +268,15 @@ export default function PlacesPage() {
                 placeholder="11.00 AM"
                 value={checkOut}
                 onChange={(e) => setCheckOut(e.target.value)}
+              />
+            </div>
+            <div>
+              <h3 className="mt-2 -mb-1">Price per night</h3>
+              <input
+                placeholder="Rs.1500"
+                type="number"
+                value={price}
+                onChange={(e) => setPrice(e.target.value)}
               />
             </div>
             <div>

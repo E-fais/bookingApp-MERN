@@ -14,6 +14,7 @@ function EditPlace() {
   const [checkIn, setCheckIn] = useState("");
   const [checkOut, setCheckOut] = useState("");
   const [maxGuests, setMaxGuests] = useState(1);
+  const [price, setPrice] = useState()
   const { id } = useParams();
   useEffect(() => {
     axios.get("/places/" + id).then((res) => {
@@ -26,6 +27,7 @@ function EditPlace() {
       setCheckIn(res.data.checkIn);
       setCheckOut(res.data.checkOut);
       setMaxGuests(res.data.maxGuests);
+      setPrice(res.data.price)
     });
   }, []);
   async function savePlace(e) {
@@ -41,6 +43,7 @@ function EditPlace() {
       checkIn,
       checkOut,
       description,
+      price
     });
 
     window.location.href = "/account/accommodations";
@@ -226,7 +229,7 @@ function EditPlace() {
         <p className="text-gray-500 text-sm">
           add check in and out time details.
         </p>
-        <div className="gap-2 grid sm:grid-cols-3">
+        <div className="gap-2 grid grid-cols-2 md:grid-cols-4">
           <div>
             <h3 className="mt-2 -mb-1">Check in time</h3>
             <input
@@ -245,6 +248,15 @@ function EditPlace() {
               onChange={(e) => setCheckOut(e.target.value)}
             />
           </div>
+          <div>
+              <h3 className="mt-2 -mb-1">Price per night</h3>
+              <input
+                placeholder="Rs.1500"
+                type="number"
+                value={price}
+                onChange={(e) => setPrice(e.target.value)}
+              />
+            </div>
           <div>
             <h3 className="mt-2 -mb-1">Maximum number of guests</h3>
             <input

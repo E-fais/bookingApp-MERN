@@ -9,6 +9,7 @@ import { UserContextProvider } from "./Context/UserContext";
 import PlacesPage from "./pages/PlacesPage";
 import FetchPalces from "./comoponents/FetchPalces";
 import EditPlace from "./pages/EditPlace";
+import SinglePlace from "./pages/SinglePlace";
 axios.defaults.baseURL="http://localhost:4000"
 axios.defaults.withCredentials=true
 function App() {
@@ -22,7 +23,8 @@ function App() {
       <Route path="/register" element={<RegisterPage/>}/>
       <Route path="/account/:subpage?" element={<Account/>}/>
       <Route path="/account/:subpage/:action" element={<Account/>}/>
-      <Route path="/places/:id" element={<EditPlace/>}/>
+      <Route path="account/places/:id" element={<EditPlace/>}/>
+      <Route path="/places/:id" element={<SinglePlace/>}/>
       </Route>
     </Routes>
     </UserContextProvider>
