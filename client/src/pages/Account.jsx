@@ -54,7 +54,9 @@ function Account() {
           <button onClick={logout} className='primary max-w-sm'>Logout</button>
         </div> 
       )}
+      
       {subpage==='accommodations' && <PlacesPage/>}
+      {subpage==='bookings' && <MyBookings/>}
 
     </div>
   )

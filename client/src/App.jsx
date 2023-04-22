@@ -10,6 +10,8 @@ import PlacesPage from "./pages/PlacesPage";
 import FetchPalces from "./comoponents/FetchPalces";
 import EditPlace from "./pages/EditPlace";
 import SinglePlace from "./pages/SinglePlace";
+import MyBookings from "./pages/MyBookings";
+import SingleBooking from "./pages/SingleBooking";
 axios.defaults.baseURL="http://localhost:4000"
 axios.defaults.withCredentials=true
 function App() {
@@ -21,6 +23,8 @@ function App() {
       <Route index element={<IndexPage/>}/>
       <Route path="/login" element={<LoginPage/>}/>
       <Route path="/register" element={<RegisterPage/>}/>
+      <Route path="/account/bookings" element={<MyBookings/>}/>
+      <Route path="/account/bookings/:id" element={<SingleBooking/>}/>
       <Route path="/account/:subpage?" element={<Account/>}/>
       <Route path="/account/:subpage/:action" element={<Account/>}/>
       <Route path="account/places/:id" element={<EditPlace/>}/>

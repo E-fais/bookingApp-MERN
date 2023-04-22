@@ -1,7 +1,9 @@
 import axios from 'axios'
 import {differenceInCalendarDays} from 'date-fns'
-import { useState } from 'react'
+import { useContext, useEffect, useState } from 'react'
 import { Navigate } from 'react-router-dom'
+import {UserContext} from '../Context/UserContext'
+
 export default function BookingWidgets({place}){
   const [checkIn,setCheckIn]=useState('')
   const [checkOut,setCheckOut]=useState('')
@@ -14,6 +16,10 @@ export default function BookingWidgets({place}){
   if (checkIn && checkOut){
     numberOfNights=differenceInCalendarDays(new Date(checkOut),new Date(checkIn))
   } 
+const{user}=useContext(UserContext)
+useEffect(()=>{
+  if(user){setName(user.name)}
+},[user])
 
   const bookRoom= async ()=>{
  const response=await axios.post('/booking',{
@@ -74,7 +80,7 @@ if(redirect){
             }
           </div>
 
-          <button onClick={bookRoom}
+          <button onClick={user?bookRoom:()=>{alert('You must be logged in to book places.!')}}
            className="primary">
             Book this place
           {numberOfNights>0 && 

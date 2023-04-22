@@ -24,6 +24,7 @@ function IndexPage() {
         </Link>
       )
      })}
+    
     </div>
   )
 }
