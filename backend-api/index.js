@@ -1,96 +1,48 @@
-const express = require('express')
-const mongoose = require('mongoose')
-const User = require('./models/users.js')
-const Booking = require('./models/booking.js')
-const Place = require('./models/places.js')
-require('dotenv').config()
-const cors = require('cors') // hleps to connect react to express 
-const app = express()
-const jwt = require('jsonwebtoken')
-const bcrypt = require('bcryptjs')
-const cookieParser = require('cookie-parser')
-const imageDownloader = require('image-downloader')
-const multer = require('multer')
-const filePath = require('path')
-const fs = require("fs")
+import express from "express";
+import mongoose from "mongoose";
+import dotenv from "dotenv";
+import cors from "cors";
+import cookieParser from "cookie-parser";
 
-const bcryptSalt = bcrypt.genSaltSync(10) //creating a secret code to hide password
-const jwtSecret = 'sjfsdjflsdkfjskldfjklsdjfkls' //a random string
-app.use(express.json()) //to parse json
-app.use(cookieParser()) //to grab token from cookies which is used to save user info
-app.use('/uploads', express.static(__dirname + '/uploads'))
-app.use(cors({
+import imageDownloader from "image-downloader";
+import multer from "multer";
+import fs from "fs";
+import filePath, { dirname as __dirname } from "path";
+
+// there was no __dirname defined at pre code
+// test and choose one of these two options(UP/DOWN)
+
+// const __dirname = path.resolve();
+
+import userRoutes from "./routes/user.js";
+import placesRoutes from "./routes/places.js";
+import bookingRoutes from "./routes/booking.js";
+
+const app = express();
+app.use(express.json({ limit: "30mb", extended: true }));
+app.use(express.urlencoded({ limit: "30mb", extended: true }));
+app.use(
+  cors({
     credentials: true,
-    origin: "http://127.0.0.1:5173"
-}))
-mongoose.connect(process.env.MONGO_URL)
+    origin: "http://127.0.0.1:5173",
+  })
+);
+app.use(cookieParser());
+dotenv.config();
 
-function getUserDataFromReq(req){
-    return new Promise ((resolve,reject)=>{
-        jwt.verify(req.cookies.token,jwtSecret,{},async(err,userData)=>{
-            if(err) throw new err
-            resolve(userData)
-        })
-    })
-}
+app.get("/", (req, res) => res.send("Welcome to my server"));
+app.use("/user", userRoutes);
+app.use("/places", placesRoutes);
+app.use("/booking", bookingRoutes);
 
-app.get('/test', (req, res) => {
-    res.json('test ok')
-})
-app.post('/register', async (req, res) => {
-    const { name, email, password } = req.body
-    try {
-        const userDoc = await User.create({
-            name,
-            email,
-            password: bcrypt.hashSync(password, bcryptSalt)
-        })
-        res.json(userDoc)
-    } catch (error) {
-        res.status(422).json(error)
-    }
 
-})
 
-app.post('/login', async (req, res) => {
-    const { email, password } = req.body
-    const userDoc = await User.findOne({ email })
-    if (userDoc) {
-        const passwordOK = bcrypt.compareSync(password, userDoc.password)
-        if (passwordOK) {
-            jwt.sign({ email: userDoc.email, id: userDoc._id }, jwtSecret, {}, (err, token) => {
-                if (err) throw err
-                const { name, email, _id } = userDoc
-                res.cookie('token',
-                    token, {
-                    httpOnly: true,
-                    sameSite: 'none',
-                    secure: true
-                }).json({ name, email, _id })
-            })
-        } else {
-            res.json('password is not ok')
-        }
-    } else {
-
-        res.json('eamil not found')
-    }
-})
-//route to store user info so that it does not desappear on refresh
-app.get('/profile', (req, res) => {
-    const { token } = req.cookies
-    if (token) {
-        jwt.verify(token, jwtSecret, {}, async (err, userDoc) => {
-            if (err) throw err;
-            const { name, email, _id } = await User.findById(userDoc.id)
-            res.json({ name, email, _id })
-        })
-    }
-})
-
-app.post('/logout', (req, res) => {
-    res.cookie('token', '').json(true)
-})
+// --------------------------------------------------------------------------
+// i did not change any of this two routes
+// cuz i could not test them after change(move)
+// these are same as before but other routes all moved to new file structure
+// you can take a look at others and do same with these
+app.use('/uploads', express.static(__dirname + '/uploads'));
 app.post('/upload-by-link', async (req, res) => {
     const { link } = req.body
     let newName = Date.now() + '.jpg'
@@ -101,7 +53,7 @@ app.post('/upload-by-link', async (req, res) => {
     res.json(newName)
 })
 
-//install multer
+// //install multer
 const photosMiddleware = multer({ dest: 'uploads/' })
 app.post('/upload', photosMiddleware.array('photos', 100), (req, res) => {
     const uploadedFiles = []
@@ -116,89 +68,20 @@ app.post('/upload', photosMiddleware.array('photos', 100), (req, res) => {
         console.log(path)
     }
     res.json(uploadedFiles)
+});
+// --------------------------------------------------------------------------
 
-})
-app.post('/places', (req, res) => {
-    const { token } = req.cookies
-    const {
-        title, adress,
-        photosAdded, extraInfo,
-        perks, maxGuests, checkIn,
-        checkOut, description, price
-    } = req.body
-    jwt.verify(token, jwtSecret, {}, async (err, userData) => {
-        if (err) throw err
-        const placeDoc = await Place.create({
-            owner: userData.id,
-            title, adress,
-            photos: photosAdded, extraInfo,
-            perks, maxGuests, checkIn,
-            checkOut, description, price
-        })
-        res.json(placeDoc)
-    })
-})
 
-app.get('/user-places', (req, res) => {
-    const { token } = req.cookies
-    jwt.verify(token, jwtSecret, {}, async (err, userData) => {
-        const { id } = userData
-        res.json(await Place.find({ owner: id }))
-    })
-})
+const PORT = process.env.PORT || 1313;
 
-app.get('/places/:id', async (req, res) => {
-    const { id } = req.params
-    res.json(await Place.findById(id))
-})
-
-app.put('/places', async (req, res) => {
-    //need to verify owner
-    const { token } = req.cookies
-    const { id,
-        title, adress,
-        photosAdded, extraInfo,
-        perks, maxGuests, checkIn,
-        checkOut, description, price
-    } = req.body
-    jwt.verify(token, jwtSecret, {}, async (err, userData) => {
-        if (err) throw new err
-        const placeDoc = await Place.findById(id)
-        if (userData.id === placeDoc.owner.toString()) {
-            placeDoc.set({
-                title, adress,
-                photos: photosAdded, extraInfo,
-                perks, maxGuests, checkIn,
-                checkOut, description, price
-            })
-            await placeDoc.save()
-            res.json('ok')
-        }
-    })
-})
-
-app.get('/places', async (req, res) => {
-    res.json(await Place.find())
-})
-
-app.post('/booking', async(req, res) => {
-   const  userData= await getUserDataFromReq(req)
-    const {
-        place, checkIn, checkOut, numberOfGuests, name, email, mobile, price
-    } = req.body
-    Booking.create({
-        place, checkIn, checkOut, numberOfGuests, name, email, mobile, price,user:userData.id
-    }).then((doc) => {
-        res.json(doc)
-    }).catch(err => {
-        console.log(err)
-        res.status(500).send('Internal server error')
-    })
-})
-app.get('/bookings', async (req, res) => {
-  const userData=await getUserDataFromReq(req )
-  res.json(await Booking.find({user:userData.id}).populate('place'))
-})
-
-app.listen(4000)
+mongoose.connect(process.env.CONNECTION_URL, {
+    useNewUrlParser: true,
+    useUnifiedTopology: true,
+  })
+  .then(() =>
+    app.listen(PORT, () =>
+      console.log(`Server Running on Port: http://localhost:${PORT}`)
+    )
+  )
+.catch((error) => console.log(`${error} did not connect`));
 

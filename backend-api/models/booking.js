@@ -1,5 +1,6 @@
-const mongoose=require('mongoose')
-const bookingSchema=new mongoose.Schema({
+import mongoose, { Schema } from 'mongoose';
+
+const bookingSchema= new Schema({
     place:{type:mongoose.Schema.Types.ObjectId,ref:'Place'}, //ref: used to reference to placesModel to obtain necessary details
     user:{type:mongoose.Schema.Types.ObjectId},
     checkIn:{type:Date,required:true},
@@ -10,5 +11,4 @@ const bookingSchema=new mongoose.Schema({
     price:Number
 })
 
-const BookingModel= mongoose.model('Booking',bookingSchema)
-module.exports=BookingModel
+export default mongoose.model('Booking',bookingSchema)

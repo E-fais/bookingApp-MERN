@@ -1,6 +1,6 @@
-const mongoose=require('mongoose')
+import mongoose, { Schema } from 'mongoose';
 
-const placeSchema=new mongoose.Schema({
+const placeSchema= new Schema({
     owner:{type:mongoose.Schema.Types.ObjectId,ref:'User'}, 
     title:String,
     adress:String,
@@ -14,5 +14,4 @@ const placeSchema=new mongoose.Schema({
     price:Number
 })
 
-const placeModel=mongoose.model('Place',placeSchema)
-module.exports=(placeModel)
+export default mongoose.model('Place',placeSchema);
